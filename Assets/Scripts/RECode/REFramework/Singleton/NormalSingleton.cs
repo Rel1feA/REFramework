@@ -2,24 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace RECode
+namespace RECode.REFramework
 {
-    namespace REFramework
+    public class NormalSingleton<T> where T : class, new()
     {
-        public class NormalSingleton<T> where T : class, new()
-        {
-            private static T instance;
+        private static T instance;
 
-            public static T Instance
+        public static T Instance
+        {
+            get
             {
-                get
+                if (instance == null)
                 {
-                    if (instance == null)
-                    {
-                        instance = new T();
-                    }
-                    return instance;
+                    instance = new T();
                 }
+                return instance;
             }
         }
     }

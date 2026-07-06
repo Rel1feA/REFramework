@@ -2,33 +2,30 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace RECode
+namespace RECode.REFramework
 {
-    namespace REFramework
+    public class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
     {
-        public class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
+        private static T instance;
+
+        public static T Instance
         {
-            private static T instance;
-
-            public static T Instance
+            get
             {
-                get
-                {
-                    return instance;
-                }
+                return instance;
             }
+        }
 
-            protected virtual void Awake()
+        protected virtual void Awake()
+        {
+            if (instance == null)
             {
-                if (instance == null)
-                {
-                    instance = this as T;
-                    DontDestroyOnLoad(gameObject);
-                }
-                else
-                {
-                    Destroy(gameObject);
-                }
+                instance = this as T;
+                DontDestroyOnLoad(gameObject);
+            }
+            else
+            {
+                Destroy(gameObject);
             }
         }
     }

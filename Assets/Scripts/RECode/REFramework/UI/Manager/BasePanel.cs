@@ -4,64 +4,62 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace RECode
+namespace RECode.REFramework
 {
-    namespace REFramework
+    public class BasePanel : MonoBehaviour
     {
-        public class BasePanel : MonoBehaviour
+        private Dictionary<string, List<UIBehaviour>> controlDic = new Dictionary<string, List<UIBehaviour>>();
+
+        protected virtual void Awake()
         {
-            private Dictionary<string, List<UIBehaviour>> controlDic = new Dictionary<string, List<UIBehaviour>>();
+            FindChildrenControl<Button>();
+            FindChildrenControl<Image>();
+            FindChildrenControl<Text>();
+        }
 
-            protected virtual void Awake()
+        private void FindChildrenControl<T>() where T : UIBehaviour
+        {
+            T[] controls = GetComponentsInChildren<T>();
+            string objName;
+            for (int i = 0; i < controls.Length; i++)
             {
-                FindChildrenControl<Button>();
-                FindChildrenControl<Image>();
-                FindChildrenControl<Text>();
-            }
-
-            private void FindChildrenControl<T>() where T : UIBehaviour
-            {
-                T[] controls = GetComponentsInChildren<T>();
-                string objName;
-                for (int i = 0; i < controls.Length; i++)
-                {
-                    objName = controls[i].gameObject.name;
-                    if (controlDic.ContainsKey(objName))
-                    {
-                        controlDic[objName].Add(controls[i]);
-                    }
-                    else
-                    {
-                        controlDic.Add(controls[i].gameObject.name, new List<UIBehaviour> { controls[i] });
-                    }
-                }
-            }
-
-            protected T GetControl<T>(string objName) where T : UIBehaviour
-            {
+                objName = controls[i].gameObject.name;
                 if (controlDic.ContainsKey(objName))
                 {
-                    for (int i = 0; i < controlDic[objName].Count; i++)
-                    {
-                        if (controlDic[objName][i] is T)
-                        {
-                            return controlDic[objName][i] as T;
-                        }
-                    }
+                    controlDic[objName].Add(controls[i]);
                 }
-                return null;
-            }
-
-            public virtual void ShowMe()
-            {
-
-            }
-            public virtual void HideMe()
-            {
-                Destroy(gameObject);
+                else
+                {
+                    controlDic.Add(controls[i].gameObject.name, new List<UIBehaviour> { controls[i] });
+                }
             }
         }
+
+        protected T GetControl<T>(string objName) where T : UIBehaviour
+        {
+            if (controlDic.ContainsKey(objName))
+            {
+                for (int i = 0; i < controlDic[objName].Count; i++)
+                {
+                    if (controlDic[objName][i] is T)
+                    {
+                        return controlDic[objName][i] as T;
+                    }
+                }
+            }
+            return null;
+        }
+
+        public virtual void ShowMe()
+        {
+
+        }
+        public virtual void HideMe()
+        {
+            Destroy(gameObject);
+        }
     }
+    
 }
 
 
