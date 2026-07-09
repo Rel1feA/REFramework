@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
 
 namespace RECode.REFramework
 {
@@ -49,7 +50,10 @@ namespace RECode.REFramework
         private Dictionary<string,InputActionMap>actionMapDic=new Dictionary<string,InputActionMap>();
         private Dictionary<string,InputActionPackage> inputPackageDic=new Dictionary<string,InputActionPackage>();
 
-        private string currentActiveMap="";
+        private string currentActiveMap;
+        private InputDevice lastUsedDevice;
+
+        public InputDevice LastUsedDevice { get { return lastUsedDevice; } }
 
 
         protected override void Awake()
@@ -57,6 +61,20 @@ namespace RECode.REFramework
             base.Awake();
             CacheActions();
             SwitchActionMap(InputConstants.Map_Gameplay);
+            lastUsedDevice=Keyboard.current;
+            InputSystem.onEvent += OnInputEvent;
+        }
+
+        private void OnDestroy()
+        {
+            InputSystem.onEvent -= OnInputEvent;
+        }
+
+        private void OnInputEvent(InputEventPtr eventPtr, InputDevice device)
+        {
+            if (!(device is Keyboard)&&!(device is Gamepad))
+                return;
+            lastUsedDevice = device;
         }
 
         private void CacheActions()
@@ -271,6 +289,75 @@ namespace RECode.REFramework
             foreach(var map in actionMapDic.Values)
             {
                 map.Disable();
+            }
+        }
+
+        private int GetRealIndexInAction(string actionName,int index,string mapName=null)
+        {
+            InputAction inputAction = GetInputAction(actionName, mapName);
+            if (inputAction == null)
+            {
+                Debug.LogError($"你输入的Action名{mapName}/{actionName}错误");
+                return -1;
+            }
+            for(int i=0;i<inputAction.controls.Count;i++)
+            {
+                if (inputAction.controls[i].device==lastUsedDevice)
+                {
+                    return inputAction.GetBindingIndexForControl(inputAction.controls[i]) + index;
+                }
+            }
+            return -1;
+        }
+
+        public void StartRebind(string actionName,int index,UnityAction<bool> onComplete=null,string mapName=null,bool isRealIndex=true)
+        {
+            InputAction inputAction=GetInputAction(actionName,mapName);
+            if(inputAction==null)
+            {
+                onComplete(false);
+                Debug.LogError($"你输入的Action名{mapName}/{actionName}错误，无法改键");
+                return;
+            }
+            if(!isRealIndex)index=GetRealIndexInAction(actionName,index,mapName);
+            inputAction.Disable();
+            inputAction.PerformInteractiveRebinding(index)
+                .OnMatchWaitForAnother(0.1f)
+                .WithControlsExcluding("<Mouse>")
+                .WithControlsExcluding("<Pointer>")
+                .WithoutIgnoringNoisyControls()
+                .OnComplete((op) =>
+                {
+                    op.Dispose();
+                    inputAction.Enable();
+                    onComplete?.Invoke(true);
+                })
+                .OnCancel((op) =>
+                {
+                    op.Dispose();
+                    inputAction.Enable();
+                    onComplete?.Invoke(false);
+                })
+                .Start();
+        }
+
+        public string GetBindingName(string actionName, int index = 0,string mapName=null,bool toHumanReadAble=true,bool isRealIndex=true)
+        {
+            InputAction inputAction = GetInputAction(actionName, mapName);
+            if (inputAction == null)
+            {
+                Debug.LogError($"你输入的Action名{mapName}/{actionName}错误");
+                return string.Empty;
+            }
+            if (!isRealIndex) index = GetRealIndexInAction(actionName, index, mapName);
+            string bindingName = inputAction.bindings[index].effectivePath;
+            if (toHumanReadAble)
+            {
+                return InputControlPath.ToHumanReadableString(bindingName, InputControlPath.HumanReadableStringOptions.OmitDevice);
+            }
+            else
+            {
+                return bindingName;
             }
         }
     }

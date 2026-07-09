@@ -17,7 +17,7 @@ namespace RECode.Controller2D
         private LayerMask groundLayer;
         [SerializeField]
         [Range(0f, 2f)]
-        private float DownGravityScaleMultiply;
+        private float DownGravityScaleMultiply=1f;
 
         private Rigidbody2D rb2D;
         private Collider2D col2D;
@@ -66,7 +66,7 @@ namespace RECode.Controller2D
 
         public void GetInput()
         {
-            inputX = InputManager.Instance.GetFloat(InputConstants.Action_Move);
+            inputX = InputManager.Instance.GetAxis(InputConstants.Action_Move).x;
         }
 
         public void HandleInput()

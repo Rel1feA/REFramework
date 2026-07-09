@@ -251,7 +251,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputActions: {fileID: -944628639613478452, guid: c02bda7e0425cfc428a76b400b500969, type: 3}
-  logInputEvent: 0
 --- !u!1 &811286459
 GameObject:
   m_ObjectHideFlags: 0
