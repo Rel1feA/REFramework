@@ -49,7 +49,7 @@ namespace RECode.REFramework
             if (tableCache.ContainsKey(type))
                 return tableCache[type] as List<T>;
             var rawData = CsvReader.Instance.LoadFromStreamingAssets(fileName);
-            if (rawData != null || rawData.Count < 2) return null;
+            if (rawData == null || rawData.Count < 2) return null;
             string[] headers = rawData[headerIndex];
             var list = new List<T>();
             for (int row = 1; row < rawData.Count; row++)
@@ -93,7 +93,7 @@ namespace RECode.REFramework
             if(string.IsNullOrEmpty(value))
             {
                  Debug.LogWarning($"表格出现空格，{targetType}赋值默认值！");
-                if (targetType.IsValueType && !Nullable.GetUnderlyingType(targetType).IsValueType)
+                if (targetType.IsValueType && Nullable.GetUnderlyingType(targetType)==null)
                     return Activator.CreateInstance(targetType);
                 else
                     return null;

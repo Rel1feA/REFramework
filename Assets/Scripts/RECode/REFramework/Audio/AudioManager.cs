@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -19,7 +19,13 @@ namespace RECode.REFramework
         [SerializeField]
         private AudioMixer mixer;
 
-        private void Start()
+        protected override void Awake()
+        {
+            base.Awake();
+            InitData();
+        }
+
+        private void InitData()
         {
             foreach (Sound sound in sounds)
             {
@@ -44,7 +50,7 @@ namespace RECode.REFramework
         {
             if (!soundDics.ContainsKey(name))
             {
-                Debug.LogError($"Î´ÕÒµ½ÃûÎª{name}µÄÒôÆµÆ¬¶Î");
+                Debug.LogError($"æœªæ‰¾åˆ°åä¸º{name}çš„éŸ³é¢‘ç‰‡æ®µ");
                 return;
             }
             else
@@ -55,7 +61,7 @@ namespace RECode.REFramework
                     {
                         StopAudio(currentBGM.clip.name);
                     }
-                    currentBGM = FindSoundByName(name);
+                    currentBGM = soundDics[name];
                 }
                 soundDics[name].audioSource.Play();
             }
@@ -65,7 +71,7 @@ namespace RECode.REFramework
         {
             if (!soundDics.ContainsKey(name))
             {
-                Debug.LogError($"Î´ÕÒµ½ÃûÎª{name}µÄÒôÆµÆ¬¶Î");
+                Debug.LogError($"æœªæ‰¾åˆ°åä¸º{name}çš„éŸ³é¢‘ç‰‡æ®µ");
                 return;
             }
             else
@@ -83,11 +89,11 @@ namespace RECode.REFramework
                     return sound;
                 }
             }
-            Debug.LogError($"Î´ÕÒµ½ÃûÎª{name}µÄÒôÆµÆ¬¶Î");
+            Debug.LogError($"æœªæ‰¾åˆ°åä¸º{name}çš„éŸ³é¢‘ç‰‡æ®µ");
             return null;
         }
 
-        //Ê¹ÓÃÒÔÏÂ·½·¨Ê±Çë¼ÇµÃÈ¥½«AudioMixerµÄ²ÎÊı±©Â¶³öÀ´ÒÔ¹©ÉèÖÃ
+        //ä½¿ç”¨ä»¥ä¸‹æ–¹æ³•æ—¶è¯·è®°å¾—å»å°†AudioMixerçš„å‚æ•°æš´éœ²å‡ºæ¥ä»¥ä¾›è®¾ç½®
         public void ChangeValue(float value,string valueName)
         {
             mixer.SetFloat(valueName, value);

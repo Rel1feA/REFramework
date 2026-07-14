@@ -128,10 +128,6 @@ namespace RECode.REFramework
             {
                 eventInfo.actions?.Invoke(arg);
             }
-            else
-            {
-                Debug.LogError($"事件 {name} 并没有监听者，无法执行");
-            }
         }
 
         public void EventTrigger(string name)
@@ -139,10 +135,6 @@ namespace RECode.REFramework
             if(eventDic.TryGetValue(name,out IEventInfo info)&&info is EventInfo eventInfo)
             {
                 eventInfo.actions?.Invoke();
-            }
-            else
-            {
-                Debug.LogError($"事件 {name} 并没有监听者，无法执行");
             }
         }
 
