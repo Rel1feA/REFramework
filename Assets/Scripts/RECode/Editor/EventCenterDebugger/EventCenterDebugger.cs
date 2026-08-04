@@ -21,8 +21,8 @@ public class EventCenterDebugger : EditorWindow
     private List<string> eventList=new List<string>();
     private List<string> listenerList=new List<string>();
 
-    [MenuItem("Window/REDebugger/EventCenterDebugger")]
-    public static void ShowExample()
+    [MenuItem("Window/REEditor/EventCenterDebugger")]
+    public static void OpenWindow()
     {
         EventCenterDebugger wnd = GetWindow<EventCenterDebugger>();
         wnd.titleContent = new GUIContent("EventCenterDebugger");
