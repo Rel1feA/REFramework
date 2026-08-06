@@ -7,15 +7,15 @@ namespace RECode.REFramework
     //此类为动作节点，可自行发挥设计，具体实现由自己决定，以下只是范例
     public class ActionNode : BehaviorNode
     {
-        private string word;
-        public ActionNode(string word)
+        private string eventName;
+        public ActionNode(string eventName)
         {
-            this.word = word;
+            this.eventName = eventName;
         }
 
         protected override E_BehaviorState OnUpdate()
         {
-            Debug.Log(word);
+            EventCenter.Instance.EventTrigger(eventName);
             return E_BehaviorState.Success;
         }
     }

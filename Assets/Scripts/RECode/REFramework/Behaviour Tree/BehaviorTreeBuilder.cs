@@ -62,13 +62,6 @@ namespace RECode.REFramework
             return this;
         }
 
-        public BehaviorTreeBuilder Filter()
-        {
-            Filter node = new Filter();
-            AddBehavior(node);
-            return this;
-        }
-
         public BehaviorTreeBuilder Parallel(ParallelNode.E_Policy success,ParallelNode.E_Policy failure)
         {
             ParallelNode node=new ParallelNode(success,failure);
