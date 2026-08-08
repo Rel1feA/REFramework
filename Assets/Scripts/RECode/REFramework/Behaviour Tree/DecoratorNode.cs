@@ -50,7 +50,6 @@ namespace RECode.REFramework
             }
         }
     }
-
     public class DelayNode:DecoratorNode
     {
         private float delaySeconds;

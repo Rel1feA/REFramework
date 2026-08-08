@@ -9,7 +9,7 @@ namespace RECode.REFramework
         //TODO:新增自定义节点类型时，在此加一个枚举类型
         Sequence, Selector, ActiveSelector,Parallel, Monitor, 
         Inverter, Repeat,Delay,
-        Action
+        Action,Condition,Debug
     }
 
     [Serializable]

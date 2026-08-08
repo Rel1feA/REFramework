@@ -1,4 +1,4 @@
-using RECode.REFramework;
+ï»¿using RECode.REFramework;
 using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 namespace RECode.Editor.BTEditor
 {
     /// <summary>
-    /// ĞĞÎªÊ÷½ÚµãËÑË÷´°¿Ú£ºÓÒ¼üËÑË÷ / ·ÖÀàÉ¸Ñ¡ / ´´½¨ÈÎÒâ½ÚµãÀàĞÍ
+    /// è¡Œä¸ºæ ‘èŠ‚ç‚¹æœç´¢çª—å£ï¼šå³é”®æœç´¢ / åˆ†ç±»ç­›é€‰ / åˆ›å»ºä»»æ„èŠ‚ç‚¹ç±»å‹
     /// </summary>
     public class BTNodeSearchWindow : ScriptableObject, ISearchWindowProvider
     {
@@ -17,59 +17,60 @@ namespace RECode.Editor.BTEditor
         public void Initialize(BehaviorTreeGraphView graphView)
         {
             _graphView = graphView;
-            // 1x1Í¸Ã÷ÎÆÀíÓÃ×÷Ëõ½øÕ¼Î»£¬±ÜÃâ ArgumentNullException
+            // 1x1é€æ˜çº¹ç†ç”¨ä½œç¼©è¿›å ä½ï¼Œé¿å… ArgumentNullException
             _indentIcon = new Texture2D(1, 1);
             _indentIcon.SetPixel(0, 0, Color.clear);
             _indentIcon.Apply();
         }
 
         /// <summary>
-        /// ISearchWindowProvider Èë¿Ú£º¹¹½¨ËÑË÷Ê÷
+        /// ISearchWindowProvider å…¥å£ï¼šæ„å»ºæœç´¢æ ‘
         /// </summary>
         public List<SearchTreeEntry> CreateSearchTree(SearchWindowContext context)
         {
             var entries = new List<SearchTreeEntry>
             {
-                new SearchTreeGroupEntry(new GUIContent("´´½¨ĞĞÎªÊ÷½Úµã"), 0)
+                new SearchTreeGroupEntry(new GUIContent("åˆ›å»ºè¡Œä¸ºæ ‘èŠ‚ç‚¹"), 0)
             };
 
-            //TODO:ĞÂÔö×Ô¶¨Òå½ÚµãÀàĞÍÊ±£¬ÔÚ´Ë¸üĞÂËÑË÷´°¿Ú
-            // ©¤©¤ ×éºÏ½Úµã ©¤©¤
-            entries.Add(new SearchTreeGroupEntry(new GUIContent("×éºÏ½Úµã (Composite)"), 1));
-            entries.Add(MakeEntry("ĞòÁĞ Sequence", E_BTNodeType.Sequence, 2));
-            entries.Add(MakeEntry("Ñ¡ÔñÆ÷ Selector", E_BTNodeType.Selector, 2));
-            entries.Add(MakeEntry("Ö÷¶¯Ñ¡ÔñÆ÷ ActiveSelector", E_BTNodeType.ActiveSelector, 2));
-            entries.Add(MakeEntry("²¢ĞĞ Parallel", E_BTNodeType.Parallel, 2));
-            entries.Add(MakeEntry("¼à¿ØÆ÷ Monitor", E_BTNodeType.Monitor, 2));
+            //TODO:æ–°å¢è‡ªå®šä¹‰èŠ‚ç‚¹ç±»å‹æ—¶ï¼Œåœ¨æ­¤æ›´æ–°æœç´¢çª—å£
+            // â”€â”€ ç»„åˆèŠ‚ç‚¹ â”€â”€
+            entries.Add(new SearchTreeGroupEntry(new GUIContent("ç»„åˆèŠ‚ç‚¹ (Composite)"), 1));
+            entries.Add(MakeEntry("åºåˆ— Sequence", E_BTNodeType.Sequence, 2));
+            entries.Add(MakeEntry("é€‰æ‹©å™¨ Selector", E_BTNodeType.Selector, 2));
+            entries.Add(MakeEntry("ä¸»åŠ¨é€‰æ‹©å™¨ ActiveSelector", E_BTNodeType.ActiveSelector, 2));
+            entries.Add(MakeEntry("å¹¶è¡Œ Parallel", E_BTNodeType.Parallel, 2));
+            entries.Add(MakeEntry("ç›‘æ§å™¨ Monitor", E_BTNodeType.Monitor, 2));
 
-            // ©¤©¤ ×°ÊÎ½Úµã ©¤©¤
-            entries.Add(new SearchTreeGroupEntry(new GUIContent("×°ÊÎ½Úµã (Decorator)"), 1));
-            entries.Add(MakeEntry("È¡·´ Inverter", E_BTNodeType.Inverter, 2));
-            entries.Add(MakeEntry("ÖØ¸´ Repeat", E_BTNodeType.Repeat, 2));
-            entries.Add(MakeEntry("ÑÓÊ± Delay", E_BTNodeType.Delay, 2));
+            // â”€â”€ è£…é¥°èŠ‚ç‚¹ â”€â”€
+            entries.Add(new SearchTreeGroupEntry(new GUIContent("è£…é¥°èŠ‚ç‚¹ (Decorator)"), 1));
+            entries.Add(MakeEntry("å–å Inverter", E_BTNodeType.Inverter, 2));
+            entries.Add(MakeEntry("é‡å¤ Repeat", E_BTNodeType.Repeat, 2));
+            entries.Add(MakeEntry("å»¶æ—¶ Delay", E_BTNodeType.Delay, 2));
 
-            // ©¤©¤ Ò¶×Ó½Úµã ©¤©¤
-            entries.Add(new SearchTreeGroupEntry(new GUIContent("Ò¶×Ó½Úµã (Leaf)"), 1));
-            entries.Add(MakeEntry("¶¯×÷½Úµã Action", E_BTNodeType.Action, 2));
-
+            // â”€â”€ å¶å­èŠ‚ç‚¹ â”€â”€
+            entries.Add(new SearchTreeGroupEntry(new GUIContent("å¶å­èŠ‚ç‚¹ (Leaf)"), 1));
+            entries.Add(MakeEntry("äº‹ä»¶èŠ‚ç‚¹ Action", E_BTNodeType.Action, 2));
+            entries.Add(MakeEntry("æ¡ä»¶èŠ‚ç‚¹ Condition", E_BTNodeType.Condition, 2));
+            entries.Add(MakeEntry("æ‰“å°èŠ‚ç‚¹ Debug", E_BTNodeType.Debug, 2));
             return entries;
         }
 
         /// <summary>
-        /// Ñ¡ÖĞÌõÄ¿ºóµÄ»Øµ÷£ºÔÚ»­²¼ÉÏ´´½¨½Úµã²¢Ñ¡ÖĞ
+        /// é€‰ä¸­æ¡ç›®åçš„å›è°ƒï¼šåœ¨ç”»å¸ƒä¸Šåˆ›å»ºèŠ‚ç‚¹å¹¶é€‰ä¸­
         /// </summary>
         public bool OnSelectEntry(SearchTreeEntry entry, SearchWindowContext context)
         {
             if (entry.userData is not E_BTNodeType nodeType) return false;
 
-            // ÆÁÄ»×ø±ê ¡ú »­²¼×ø±ê
+            // å±å¹•åæ ‡ â†’ ç”»å¸ƒåæ ‡
             var worldMousePos = _graphView.EditorWindow.rootVisualElement.ChangeCoordinatesTo(
                 _graphView.EditorWindow.rootVisualElement.parent,
                 context.screenMousePosition - _graphView.EditorWindow.position.position
             );
             var graphMousePos = _graphView.contentViewContainer.WorldToLocal(worldMousePos);
 
-            // ´´½¨Êı¾İ + ÊÓÍ¼
+            // åˆ›å»ºæ•°æ® + è§†å›¾
             var nodeData = _graphView.CreateNodeData(nodeType);
             nodeData.graphPosition = graphMousePos;
             _graphView.CreateAndAddNodeView(nodeData);

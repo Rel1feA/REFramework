@@ -51,6 +51,10 @@ namespace RECode.REFramework
                     return new DelayNode(data.paramFloat);
                 case E_BTNodeType.Action:
                     return new ActionNode(data.actionParamJson ?? string.Empty);
+                case E_BTNodeType.Condition:
+                    return new ConditionNode(data.actionParamJson ?? string.Empty);
+                case E_BTNodeType.Debug:
+                    return new DebugNode(data.actionParamJson ?? string.Empty);
                 default:
                     return null;
             }

@@ -149,59 +149,82 @@ namespace RECode.Editor.BTEditor
         }
 
         /// <summary>
-        /// 自动排列所有节点：按树深度从左到右，同层从上到下
+        /// 自动排列所有节点：从上到下（深度），优先级从左到右（children 顺序）
         /// </summary>
         public void AutoLayout()
         {
             if (Asset?.rootNode == null) return;
 
-            const float horizontalSpacing = 250f;  // 父子节点水平间距
-            const float verticalSpacing = 160f;    // 同层兄弟垂直间距
+            const float vSpacing = 220f;   // 父子节点垂直间距（深度方向）
+            const float hSpacing = 200f;   // 相邻叶子水平间距（兄弟方向）
 
-            var columnYs = new Dictionary<int, float>();  // 每列的当前 Y 偏移
-
-            LayoutRecursive(Asset.rootNode, 0, ref columnYs, horizontalSpacing, verticalSpacing);
+            float totalWidth = LayoutSubtreeVertical(Asset.rootNode, 0, vSpacing, hSpacing);
+            // totalWidth 可用来居中整棵树，这里先不处理
 
             EditorUtility.SetDirty(Asset);
             MarkDirtyRepaint();
 
-            // 自动排列后延迟一帧适应画布
             schedule.Execute(() => FrameAllPublic()).ExecuteLater(1);
         }
 
-        private void LayoutRecursive(BTNodeData node, int depth,
-            ref Dictionary<int, float> columnYs,
-            float hSpacing, float vSpacing)
+        /// <summary>
+        /// 递归布局：返回该子树所需的总宽度
+        /// </summary>
+        private float LayoutSubtreeVertical(BTNodeData node, int depth,
+            float vSpacing, float hSpacing)
         {
-            if (node == null) return;
+            if (node == null) return 0;
 
-            // 先排列所有子节点（深度优先，确保子树高度先算出来）
-            foreach (var child in node.children)
-                LayoutRecursive(child, depth + 1, ref columnYs, hSpacing, vSpacing);
+            float y = depth * vSpacing;     // 越深越靠下
 
-            // 计算当前节点的 X（越深越靠右）
-            float x = depth * hSpacing;
-
-            // 计算当前节点的 Y
             if (node.children.Count == 0)
             {
-                // 叶子节点：放到当前列的最下方
-                if (!columnYs.ContainsKey(depth))
-                    columnYs[depth] = 0f;
-                node.graphPosition = new Vector2(x, columnYs[depth]);
-                columnYs[depth] += vSpacing;
-            }
-            else
-            {
-                // 非叶子节点：放在子节点的垂直中间
-                float minY = node.children[0].graphPosition.y;
-                float maxY = node.children[node.children.Count - 1].graphPosition.y;
-                node.graphPosition = new Vector2(x, (minY + maxY) / 2f);
+                // 叶子节点：X 暂设 0，由父节点统一移动
+                node.graphPosition = new Vector2(0, y);
+                UpdateNodeViewPosition(node);
+                return hSpacing;
             }
 
-            // 如果有视图，更新视图位置
-            if (_nodeViewMap.TryGetValue(node.guid, out var nodeView))
-                nodeView.SetPosition(new Rect(node.graphPosition, _defaultNodeSize));
+            // 1. 先递归排列所有子节点（后序遍历）
+            float totalWidth = 0;
+            for (int i = 0; i < node.children.Count; i++)
+            {
+                var child = node.children[i];
+                float childWidth = LayoutSubtreeVertical(child, depth + 1, vSpacing, hSpacing);
+
+                // 把整个子树向右移到正确列
+                ShiftSubtreeX(child, totalWidth - child.graphPosition.x);
+                totalWidth += childWidth;
+            }
+
+            // 2. 父节点居中于首尾子节点之间
+            float xCenter = (node.children[0].graphPosition.x
+                           + node.children[^1].graphPosition.x) / 2f;
+            node.graphPosition = new Vector2(xCenter, y);
+            UpdateNodeViewPosition(node);
+
+            return totalWidth;
+        }
+
+        /// <summary>
+        /// 将节点及其所有子节点沿 X 轴平移
+        /// </summary>
+        private void ShiftSubtreeX(BTNodeData node, float xOffset)
+        {
+            if (node == null) return;
+            node.graphPosition = new Vector2(node.graphPosition.x + xOffset, node.graphPosition.y);
+            UpdateNodeViewPosition(node);
+            foreach (var child in node.children)
+                ShiftSubtreeX(child, xOffset);
+        }
+
+        /// <summary>
+        /// 更新节点视图位置（如果视图已存在）
+        /// </summary>
+        private void UpdateNodeViewPosition(BTNodeData data)
+        {
+            if (_nodeViewMap.TryGetValue(data.guid, out var view))
+                view.SetPosition(new Rect(data.graphPosition, _defaultNodeSize));
         }
 
         /// <summary>
@@ -436,7 +459,9 @@ namespace RECode.Editor.BTEditor
             menu.AppendAction("创建 / 取反 (Inverter)", _ => CreateNodeViaMenu(E_BTNodeType.Inverter));
             menu.AppendAction("创建 / 延时 (Delay)", _ => CreateNodeViaMenu(E_BTNodeType.Delay));
             menu.AppendAction("创建 / 重复 (Repeat)", _ => CreateNodeViaMenu(E_BTNodeType.Repeat));
-            menu.AppendAction("创建 / 动作节点 (Action)", _ => CreateNodeViaMenu(E_BTNodeType.Action));
+            menu.AppendAction("创建 / 事件节点 (Action)", _ => CreateNodeViaMenu(E_BTNodeType.Action));
+            menu.AppendAction("创建 / 条件节点 (Condition)", _ => CreateNodeViaMenu(E_BTNodeType.Condition));
+            menu.AppendAction("创建 / 打印节点 (Debug)", _ => CreateNodeViaMenu(E_BTNodeType.Debug));
             menu.AppendSeparator("创建/");
 
             // ── 画布操作 ──
@@ -477,6 +502,8 @@ namespace RECode.Editor.BTEditor
             E_BTNodeType.Repeat => "Repeat",
             E_BTNodeType.Action => "Action",
             E_BTNodeType.Delay=>"Delay",
+            E_BTNodeType.Condition=>"Condition",
+            E_BTNodeType.Debug=>"Debug",
             _ => "Unknown"
         };
 
@@ -535,10 +562,12 @@ namespace RECode.Editor.BTEditor
             {
                 menu.AppendAction("添加子节点 / 序列", _ => CreateChildNode(E_BTNodeType.Sequence, nodeView));
                 menu.AppendAction("添加子节点 / 选择器", _ => CreateChildNode(E_BTNodeType.Selector, nodeView));
-                menu.AppendAction("添加子节点 / 动作节点", _ => CreateChildNode(E_BTNodeType.Action, nodeView));
+                menu.AppendAction("添加子节点 / 事件节点", _ => CreateChildNode(E_BTNodeType.Action, nodeView));
+                menu.AppendAction("添加子节点 / 条件节点", _ => CreateChildNode(E_BTNodeType.Condition, nodeView));
                 menu.AppendAction("添加子节点 / 取反", _ => CreateChildNode(E_BTNodeType.Inverter, nodeView));
                 menu.AppendAction("添加子节点 / 重复", _ => CreateChildNode(E_BTNodeType.Repeat, nodeView));
                 menu.AppendAction("添加子节点 / 延时", _ => CreateChildNode(E_BTNodeType.Delay, nodeView));
+                menu.AppendAction("添加子节点 / 打印节点", _ => CreateChildNode(E_BTNodeType.Debug, nodeView));
                 menu.AppendSeparator("添加子节点/");
             }
 

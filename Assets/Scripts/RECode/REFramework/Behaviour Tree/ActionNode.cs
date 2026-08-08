@@ -20,12 +20,49 @@ namespace RECode.REFramework
         }
     }
 
+    public class ConditionNode:BehaviorNode
+    {
+        private string funcName;
+        public ConditionNode(string funcName)
+        {
+            this.funcName = funcName;
+        }
+
+        protected override E_BehaviorState OnUpdate()
+        {
+            return EventCenter.Instance.FuncTrigger<bool>(funcName)?E_BehaviorState.Success:E_BehaviorState.Failure;
+        }
+    }
+
+    public class DebugNode:BehaviorNode
+    {
+        private string word;
+        public DebugNode(string word)
+        {
+            this.word = word;
+        }
+
+        protected override E_BehaviorState OnUpdate()
+        {
+            Debug.Log(word);
+            return E_BehaviorState.Success;
+        }
+    }
+
+
     //设计成部分类，可以在创建新的节点的时候，顺便在构建器增加新的节点
     public partial class BehaviorTreeBuilder
     {
-        public BehaviorTreeBuilder ActionNode(string word)
+        public BehaviorTreeBuilder ActionNode(string actionName)
         {
-            ActionNode node= new ActionNode(word);  
+            ActionNode node= new ActionNode(actionName);  
+            AddBehavior(node);
+            return this;
+        }
+
+        public BehaviorTreeBuilder ConditionNode(string funcName)
+        {
+            ConditionNode node = new ConditionNode(funcName);
             AddBehavior(node);
             return this;
         }

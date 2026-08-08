@@ -146,6 +146,8 @@ namespace RECode.Editor.BTEditor
                     BuildDelayParams();
                     break;
                 case E_BTNodeType.Action:
+                case E_BTNodeType.Condition:
+                case E_BTNodeType.Debug:
                     BuildActionParams();
                     break;
             }
@@ -207,7 +209,7 @@ namespace RECode.Editor.BTEditor
         /// </summary>
         private void BuildActionParams()
         {
-            var eventField = new TextField("事件名称")
+            var eventField = new TextField("String变量")
             {
                 value = Data.actionParamJson ?? "",
                 style = { marginLeft = 8, marginRight = 8, marginTop = 4, marginBottom = 4 }
@@ -242,7 +244,7 @@ namespace RECode.Editor.BTEditor
             Color color = Data.nodeType switch
             {
                 //TODO:新增自定义节点类型时，选择节点颜色
-                E_BTNodeType.Action  or E_BTNodeType.Monitor
+                E_BTNodeType.Action  or E_BTNodeType.Monitor or E_BTNodeType.Condition or E_BTNodeType.Debug
                     => ColorLeaf,
                 E_BTNodeType.Inverter or E_BTNodeType.Repeat or E_BTNodeType.Delay
                     => ColorDecorator,
@@ -374,7 +376,7 @@ namespace RECode.Editor.BTEditor
         private Color GetOriginalColor() => Data.nodeType switch
         {
             //TODO:新增自定义节点类型时，在此更新一下原始颜色
-            E_BTNodeType.Action or E_BTNodeType.Monitor => ColorLeaf,
+            E_BTNodeType.Action or E_BTNodeType.Monitor or E_BTNodeType.Condition or E_BTNodeType.Debug=> ColorLeaf,
             E_BTNodeType.Inverter or E_BTNodeType.Repeat or E_BTNodeType.Delay => ColorDecorator,
             _ => ColorComposite
         };
@@ -383,7 +385,7 @@ namespace RECode.Editor.BTEditor
 
         private bool IsLeafNode()
         {
-            return Data.nodeType == E_BTNodeType.Action;
+            return Data.nodeType is E_BTNodeType.Action or E_BTNodeType.Condition;
         }
     }
 }

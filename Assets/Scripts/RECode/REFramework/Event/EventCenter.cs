@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst.Intrinsics;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -23,6 +24,21 @@ namespace RECode.REFramework
         public Delegate[] GetDelegates()
         {
             return actions.GetInvocationList();
+        }
+    }
+
+    public class FuncInfo<T> : IEventInfo
+    {
+        public Func<T> func;
+
+        public FuncInfo(Func<T> _func)
+        {
+            func += _func;
+        }
+
+        public Delegate[] GetDelegates()
+        {
+            return func.GetInvocationList();
         }
     }
 
@@ -120,6 +136,40 @@ namespace RECode.REFramework
                     Debug.LogError($"事件 {name} 类型不匹配，期望无参数事件，但移除的是有参事件");
                 }
             }
+        }
+
+        public void AddFuncListener<T>(string name, Func<T> func)
+        {
+            if (eventDic.TryGetValue(name, out IEventInfo info))
+            {
+                if (info is FuncInfo<T> funcInfo)
+                    funcInfo.func+= func;
+                else
+                    Debug.LogError($"委托 {name} 类型不匹配，期望条件事件");
+            }
+            else
+            {
+                eventDic.Add(name, new FuncInfo<T>(func));
+            }
+        }
+
+        public void RemoveFuncListener<T>(string name, Func<T> func)
+        {
+            if (eventDic.TryGetValue(name, out IEventInfo info) && info is FuncInfo<T> funcInfo)
+            {
+                funcInfo.func -= func;
+                if (funcInfo.func == null)
+                    eventDic.Remove(name);
+            }
+        }
+
+        public T FuncTrigger<T>(string name)
+        {
+            if (eventDic.TryGetValue(name, out IEventInfo info) && info is FuncInfo<T> funcInfo)
+            {
+                return funcInfo.func.Invoke();
+            }
+            return default(T);
         }
 
         public void EventTrigger<T>(string name, T arg)
