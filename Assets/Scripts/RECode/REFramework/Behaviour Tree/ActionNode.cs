@@ -1,43 +1,52 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace RECode.REFramework
 {
     //此类为动作节点，可自行发挥设计，具体实现由自己决定，以下只是范例
     public class ActionNode : BehaviorNode
     {
-        private string eventName;
-        public ActionNode(string eventName)
+        private string actionName;
+        public ActionNode(string eventName,Blackboard blackboard):base(blackboard)
         {
-            this.eventName = eventName;
+            this.actionName = eventName;
         }
 
         protected override E_BehaviorState OnUpdate()
         {
-            EventCenter.Instance.EventTrigger(eventName);
-            return E_BehaviorState.Success;
+            UnityAction action=blackboard.GetValue<UnityAction>(actionName);
+            if (action != null)
+            {
+                action.Invoke();
+                return E_BehaviorState.Success;
+            }
+            else
+            {
+                return E_BehaviorState.Failure;
+            }
         }
     }
 
     public class ConditionNode:BehaviorNode
     {
-        private string funcName;
-        public ConditionNode(string funcName)
+        private string boolValKey;
+        public ConditionNode(string boolValKey,Blackboard blackboard):base (blackboard)
         {
-            this.funcName = funcName;
+            this.boolValKey = boolValKey;
         }
 
         protected override E_BehaviorState OnUpdate()
         {
-            return EventCenter.Instance.FuncTrigger<bool>(funcName)?E_BehaviorState.Success:E_BehaviorState.Failure;
+            return blackboard.GetValue<bool>(boolValKey)?E_BehaviorState.Success:E_BehaviorState.Failure;
         }
     }
 
     public class DebugNode:BehaviorNode
     {
         private string word;
-        public DebugNode(string word)
+        public DebugNode(string word,Blackboard blackboard):base(blackboard)
         {
             this.word = word;
         }
@@ -55,14 +64,21 @@ namespace RECode.REFramework
     {
         public BehaviorTreeBuilder ActionNode(string actionName)
         {
-            ActionNode node= new ActionNode(actionName);  
+            ActionNode node= new ActionNode(actionName,bhTree.blackboard);  
             AddBehavior(node);
             return this;
         }
 
-        public BehaviorTreeBuilder ConditionNode(string funcName)
+        public BehaviorTreeBuilder ConditionNode(string boolValKey)
         {
-            ConditionNode node = new ConditionNode(funcName);
+            ConditionNode node = new ConditionNode(boolValKey,bhTree.blackboard);
+            AddBehavior(node);
+            return this;
+        }
+
+        public BehaviorTreeBuilder DebugNode(string word)
+        {
+            DebugNode node = new DebugNode(word, bhTree.blackboard);
             AddBehavior(node);
             return this;
         }

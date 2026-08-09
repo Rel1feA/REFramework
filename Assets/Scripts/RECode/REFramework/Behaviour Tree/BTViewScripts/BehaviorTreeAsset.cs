@@ -87,8 +87,9 @@ namespace RECode.REFramework
         public BehaviorTree GetTree()
         {
             if (rootNode == null) return null;
-            var root = BTNodeFactory.Build(rootNode);
-            return new BehaviorTree(root);
+            Blackboard blackboard=new Blackboard();
+            var root = BTNodeFactory.Build(rootNode, blackboard);
+            return new BehaviorTree(root,blackboard);
         }
     }
 }

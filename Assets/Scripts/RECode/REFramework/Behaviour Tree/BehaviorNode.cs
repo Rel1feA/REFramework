@@ -17,10 +17,12 @@
         public bool IsRunning => state == E_BehaviorState.Running;//是否正在运行
 
         protected E_BehaviorState state;
+        protected Blackboard blackboard;
 
-        public BehaviorNode()
+        public BehaviorNode(Blackboard blackboard)
         {
             state = E_BehaviorState.Invalid;
+            this.blackboard = blackboard;
         }
 
         protected virtual void OnInitialize() { }

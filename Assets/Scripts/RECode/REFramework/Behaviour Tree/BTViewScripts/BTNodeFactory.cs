@@ -6,55 +6,54 @@ namespace RECode.REFramework
 {
     public static class BTNodeFactory
     {
-        /// <summary>guid → 运行时节点（编辑器调试用，Build 时自动填充）</summary>
         public static Dictionary<string, BehaviorNode> LastBuildMap { get; private set; }
 
-        public static BehaviorNode Build(BTNodeData data)
+        public static BehaviorNode Build(BTNodeData data,Blackboard blackboard)
         {
             LastBuildMap = new Dictionary<string, BehaviorNode>();
-            return BuildInternal(data);
+            return BuildInternal(data, blackboard);
         }
 
-        private static BehaviorNode BuildInternal(BTNodeData data)
+        private static BehaviorNode BuildInternal(BTNodeData data,Blackboard blackboard)
         {
             if (data == null) return null;
-            BehaviorNode node = CreateNode(data);
+            BehaviorNode node = CreateNode(data, blackboard);
             LastBuildMap[data.guid] = node;
             foreach (var childData in data.children)
             {
-                var child = BuildInternal(childData);
+                var child = BuildInternal(childData, blackboard);
                 if (child != null) node.AddChild(child);
             }
             return node;
         }
 
-        private static BehaviorNode CreateNode(BTNodeData data)
+        private static BehaviorNode CreateNode(BTNodeData data,Blackboard blackboard)
         {
             //TODO:新增自定义节点类型时，注册工厂构造函数
             switch (data.nodeType)
             {
                 case E_BTNodeType.Sequence:
-                    return new SequenceNode();
+                    return new SequenceNode(blackboard);
                 case E_BTNodeType.Selector:
-                    return new SelectorNode();
+                    return new SelectorNode(blackboard);
                 case E_BTNodeType.ActiveSelector:
-                    return new ActiveSelector();
+                    return new ActiveSelector(blackboard);
                 case E_BTNodeType.Parallel:
-                    return new ParallelNode(data.successPolicy, data.failurePolicy);
+                    return new ParallelNode(data.successPolicy, data.failurePolicy,blackboard);
                 case E_BTNodeType.Monitor:
-                    return new MonitorNode(data.successPolicy,data.failurePolicy);
+                    return new MonitorNode(data.successPolicy,data.failurePolicy, blackboard);
                 case E_BTNodeType.Repeat:
-                    return new RepeatNode(data.paramInt);
+                    return new RepeatNode(data.paramInt, blackboard);
                 case E_BTNodeType.Inverter:
-                    return new InverterNode();
+                    return new InverterNode(blackboard);
                 case E_BTNodeType.Delay:
-                    return new DelayNode(data.paramFloat);
+                    return new DelayNode(data.paramFloat, blackboard);
                 case E_BTNodeType.Action:
-                    return new ActionNode(data.actionParamJson ?? string.Empty);
+                    return new ActionNode(data.actionParamJson ?? string.Empty,blackboard);
                 case E_BTNodeType.Condition:
-                    return new ConditionNode(data.actionParamJson ?? string.Empty);
+                    return new ConditionNode(data.actionParamJson ?? string.Empty,blackboard);
                 case E_BTNodeType.Debug:
-                    return new DebugNode(data.actionParamJson ?? string.Empty);
+                    return new DebugNode(data.actionParamJson ?? string.Empty, blackboard);
                 default:
                     return null;
             }

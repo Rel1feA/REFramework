@@ -2,6 +2,7 @@ using RECode.REFramework;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Enemy : MonoBehaviour
 {
@@ -31,16 +32,15 @@ public class Enemy : MonoBehaviour
 
     private void OnEnable()
     {
-        EventCenter.Instance.AddListener("EnemyPatrol",Patrol);
-        EventCenter.Instance.AddListener("EnemyChase", Chase);
-        EventCenter.Instance.AddFuncListener<bool>("CheckPlayer",isFindPlayer);
+        tree.blackboard.SetValue<UnityAction>("EnemyPatrol",Patrol);
+        tree.blackboard.SetValue<UnityAction>("EnemyChase", Chase);
     }
 
     private void OnDisable()
     {
-        EventCenter.Instance.RemoveListener("EnemyPatrol", Patrol);
-        EventCenter.Instance.RemoveListener("EnemyChase", Chase);
-        EventCenter.Instance.RemoveFuncListener<bool>("CheckPlayer", isFindPlayer);
+        tree.blackboard.RemoveKey("EnemyPatrol");
+        tree.blackboard.RemoveKey("EnemyChase");
+        tree.blackboard.RemoveKey("CheckPlayer");
     }
 
     private void Start()
@@ -50,6 +50,7 @@ public class Enemy : MonoBehaviour
 
     private void Update()
     {
+        tree.blackboard.SetValue<bool>("CheckPlayer", isFindPlayer());
         tree.Tick();
     }
 

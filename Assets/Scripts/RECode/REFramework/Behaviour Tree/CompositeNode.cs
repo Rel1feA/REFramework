@@ -8,7 +8,7 @@ namespace RECode.REFramework
     {
         protected LinkedList<BehaviorNode> children;
 
-        public CompositeNode()
+        public CompositeNode(Blackboard blackboard):base(blackboard)
         {
             children = new LinkedList<BehaviorNode>();
         }
@@ -31,6 +31,9 @@ namespace RECode.REFramework
     public class SequenceNode : CompositeNode
     {
         protected LinkedListNode<BehaviorNode> currentChild;
+
+        public SequenceNode(Blackboard blackboard) : base(blackboard) { }
+
         protected override void OnInitialize()
         {
             currentChild = children.First;
@@ -48,6 +51,8 @@ namespace RECode.REFramework
     }
     public class SelectorNode : SequenceNode
     {
+        public SelectorNode(Blackboard blackboard) : base(blackboard) { }
+
         protected override E_BehaviorState OnUpdate()
         {
             while (true)
@@ -69,7 +74,7 @@ namespace RECode.REFramework
         protected E_Policy mSuccessPolicy;//成功的标准
         protected E_Policy mFailurePolicy;//失败的标准
 
-        public ParallelNode(E_Policy mSuccessPolicy, E_Policy mFailurePolicy)
+        public ParallelNode(E_Policy mSuccessPolicy, E_Policy mFailurePolicy,Blackboard blackboard):base(blackboard)
         {
             this.mSuccessPolicy = mSuccessPolicy;
             this.mFailurePolicy = mFailurePolicy;
@@ -115,10 +120,7 @@ namespace RECode.REFramework
     }
     public class MonitorNode : ParallelNode
     {
-        public MonitorNode(E_Policy mSuccessPolicy, E_Policy mFailurePolicy) : base(mSuccessPolicy, mFailurePolicy)
-        {
-
-        }
+        public MonitorNode(E_Policy mSuccessPolicy, E_Policy mFailurePolicy, Blackboard blackboard) : base(mSuccessPolicy, mFailurePolicy, blackboard) { }
 
         public void AddCondition(BehaviorNode condition)
         {
@@ -131,6 +133,8 @@ namespace RECode.REFramework
     }
     public class ActiveSelector : SelectorNode
     {
+        public ActiveSelector(Blackboard blackboard) : base(blackboard) { }
+
         protected override E_BehaviorState OnUpdate()
         {
             var prev = currentChild;

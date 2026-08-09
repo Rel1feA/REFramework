@@ -6,7 +6,14 @@ namespace RECode.REFramework
 {
     public abstract class DecoratorNode : BehaviorNode
     {
+
+
         protected BehaviorNode child;
+
+        protected DecoratorNode(Blackboard blackboard) : base(blackboard)
+        {
+        }
+
         public override void AddChild(BehaviorNode child)
         {
             this.child = child;
@@ -14,6 +21,10 @@ namespace RECode.REFramework
     }
     public class InverterNode : DecoratorNode
     {
+        public InverterNode(Blackboard blackboard) : base(blackboard)
+        {
+        }
+
         protected override E_BehaviorState OnUpdate()
         {
             child.Tick();
@@ -26,7 +37,7 @@ namespace RECode.REFramework
     {
         private int counter;
         private int limit;
-        public RepeatNode(int limit)
+        public RepeatNode(int limit,Blackboard blackboard):base(blackboard)
         {
             this.limit = limit;
         }
@@ -55,7 +66,7 @@ namespace RECode.REFramework
         private float delaySeconds;
         private float _elapsed;
 
-        public DelayNode(float delaySeconds)
+        public DelayNode(float delaySeconds,Blackboard blackboard):base (blackboard)
         {
             this.delaySeconds = delaySeconds;
         }
@@ -71,6 +82,16 @@ namespace RECode.REFramework
             if (_elapsed < delaySeconds)
                 return E_BehaviorState.Running;
             return child.Tick();
+        }
+    }
+
+    public partial class BehaviorTreeBuilder
+    {
+        public BehaviorTreeBuilder DelayNode(float delaySecond)
+        {
+            DelayNode node = new DelayNode(delaySecond, bhTree.blackboard);
+            AddBehavior(node);
+            return this;
         }
     }
 }

@@ -50,49 +50,49 @@ namespace RECode.REFramework
 
         public BehaviorTreeBuilder Sequence()
         {
-            SequenceNode node=new SequenceNode();
+            SequenceNode node=new SequenceNode(bhTree.blackboard);
             AddBehavior(node);
             return this;
         }
 
         public BehaviorTreeBuilder Selector()
         {
-            SelectorNode node=new SelectorNode();
+            SelectorNode node=new SelectorNode(bhTree.blackboard);
             AddBehavior(node);
             return this;
         }
 
         public BehaviorTreeBuilder Parallel(ParallelNode.E_Policy success,ParallelNode.E_Policy failure)
         {
-            ParallelNode node=new ParallelNode(success,failure);
+            ParallelNode node=new ParallelNode(success,failure,bhTree.blackboard);
             AddBehavior(node);
             return this;
         }
 
         public BehaviorTreeBuilder Monitor(ParallelNode.E_Policy success, ParallelNode.E_Policy failure)
         {
-            MonitorNode node=new MonitorNode(success,failure);
+            MonitorNode node=new MonitorNode(success,failure, bhTree.blackboard);
             AddBehavior(node);
             return this;
         }
 
         public BehaviorTreeBuilder ActiveSelector()
         {
-            ActiveSelector node=new ActiveSelector();
+            ActiveSelector node=new ActiveSelector(bhTree.blackboard);
             AddBehavior(node);
             return this;
         }
 
         public BehaviorTreeBuilder Repeat(int limit)
         {
-            RepeatNode node=new RepeatNode(limit);
+            RepeatNode node=new RepeatNode(limit, bhTree.blackboard);
             AddBehavior(node);
             return this;
         }
 
         public BehaviorTreeBuilder Inverter()
         {
-            InverterNode node=new InverterNode();
+            InverterNode node=new InverterNode(bhTree.blackboard);
             AddBehavior(node);
             return this;
         }
