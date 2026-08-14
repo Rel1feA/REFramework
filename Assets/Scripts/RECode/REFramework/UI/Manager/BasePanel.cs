@@ -15,6 +15,7 @@ namespace RECode.REFramework
             FindChildrenControl<Button>();
             FindChildrenControl<Image>();
             FindChildrenControl<Text>();
+            FindChildrenControl<Slider>();
         }
 
         private void FindChildrenControl<T>() where T : UIBehaviour

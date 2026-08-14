@@ -49,11 +49,11 @@ namespace RECode.REFramework
             }
             else
             {
-                ResourcesManager.Instance.LoadAsync<GameObject>(path+name, ((o) =>
+                ResourcesManager.Instance.LoadAsync<GameObject>(path+name, (o) =>
                 {
                     o.name = name;
                     callback(o);
-                }));
+                });
             }
         }
 

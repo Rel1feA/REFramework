@@ -110,7 +110,7 @@ namespace RECode.REFramework
         public AudioType audioType;
 
         [Range(0f, 1f)]
-        public float volume = 0.5f;
+        public float volume = 1f;
 
         public bool playOnAwake;
 

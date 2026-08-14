@@ -46,6 +46,7 @@ public class Enemy : MonoBehaviour
     private void Start()
     {
         currentPos = pos1;
+        EventCenter.Instance.EventTrigger("PlayerTest", ("123", "321", 1));
     }
 
     private void Update()

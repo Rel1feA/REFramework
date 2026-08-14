@@ -80,6 +80,13 @@ namespace RECode.REFramework
             this.mFailurePolicy = mFailurePolicy;
         }
 
+        protected override void OnInitialize()
+        {
+            // 每轮执行前重置所有子节点
+            foreach (var child in children)
+                child.Reset();
+        }
+
         protected override E_BehaviorState OnUpdate()
         {
             int successCount = 0, failureCount = 0;
@@ -88,7 +95,7 @@ namespace RECode.REFramework
             for (int i = 0; i < size; i++)
             {
                 var node = b.Value;
-                if (!node.IsTerminated) node.Tick();
+                node.Tick();
                 b = b.Next;
                 if (node.IsSuccess)
                 {

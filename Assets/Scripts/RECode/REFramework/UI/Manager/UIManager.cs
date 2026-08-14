@@ -1,11 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
-using UnityEngine.Rendering.VirtualTexturing;
-using UnityEngine.UIElements;
 
 namespace RECode.REFramework
 {
@@ -26,7 +22,8 @@ namespace RECode.REFramework
 
     public class UIManager : MonoSingleton<UIManager>
     {
-        public Dictionary<string, BasePanel> panelDic = new Dictionary<string, BasePanel>();
+        private Dictionary<string, BasePanel> panelDic = new Dictionary<string, BasePanel>();
+        private Stack<string> panelStack=new Stack<string>();
 
         private Transform s_Bot;
         private Transform s_Mid;
@@ -101,6 +98,7 @@ namespace RECode.REFramework
                 T panel = obj.GetComponent<T>();
                 panel.ShowMe();
                 panelDic.Add(panelName, panel);
+                panelStack.Push(panelName);
                 //处理面板完成后的逻辑
                 if (callback != null)
                 {
@@ -119,6 +117,17 @@ namespace RECode.REFramework
             {
                 panelDic[panelName].HideMe();
                 panelDic.Remove(panelName);
+            }
+        }
+
+        /// <summary>
+        /// 按次序隐藏最后一个打开的面板
+        /// </summary>
+        public void HideFinallyShowPanel()
+        {
+            if(panelStack.Count > 0)
+            {
+                HidePanel(panelStack.Pop());
             }
         }
 
