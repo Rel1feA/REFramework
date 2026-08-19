@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
+using System.Collections.Generic;
 
 namespace RECode.Editor.BTEditor
 {
@@ -23,6 +24,7 @@ namespace RECode.Editor.BTEditor
         private BehaviorTreeGraphView _graphView;
         private Label _stateLabel;
         private TextField _nameField;
+        private Label _priorityLabel;
 
         // ── 节点颜色 ──
         private static readonly Color ColorComposite = new(0.25f, 0.45f, 0.75f);
@@ -52,8 +54,6 @@ namespace RECode.Editor.BTEditor
             // ŸŸ 右键菜单（委托给 GraphView） ŸŸ
             RegisterNodeContextMenu();
 
-            // ŸŸ 可拖拽移动 ŸŸ
-            this.AddManipulator(new Dragger());
 
             // ŸŸ 初始为无效状态 ŸŸ
             UpdateState(E_BehaviorState.Invalid);
@@ -113,6 +113,27 @@ namespace RECode.Editor.BTEditor
             titleContainer.Add(_nameField);
 
             // ŸŸ 根节点特殊样式（后续通过 class 设置） ŸŸ
+
+            // ── 优先级数字（右上角，UE 风格） ──
+            _priorityLabel = new Label
+            {
+                style =
+                {
+                    fontSize = 11,
+                    color = new Color(0.9f, 0.9f, 0.9f),
+                    unityTextAlign = TextAnchor.MiddleCenter,
+                    marginLeft = 6,
+                    marginRight = 4,
+                    backgroundColor = new Color(0f, 0f, 0f, 0.35f),
+                    paddingLeft = 4,
+                    paddingRight = 4,
+                    borderTopLeftRadius = 4,
+                    borderBottomLeftRadius = 4,
+                    borderTopRightRadius = 4,
+                    borderBottomRightRadius = 4,
+                }
+            };
+            titleContainer.Add(_priorityLabel);
         }
 
         private void BuildContent()
@@ -371,6 +392,22 @@ namespace RECode.Editor.BTEditor
                 E_BehaviorState.Aborted => new Color(0.35f, 0.18f, 0.05f),
                 _ => GetOriginalColor()
             };
+        }
+
+        /// <summary>刷新右上角优先级数字（全局层序遍历序号）</summary>
+        public void RefreshPriority(Dictionary<string, int> order)
+        {
+            if (_priorityLabel == null) return;
+
+            if (order.TryGetValue(Data.guid, out int idx))
+            {
+                _priorityLabel.style.display = DisplayStyle.Flex;
+                _priorityLabel.text = idx.ToString();
+            }
+            else
+            {
+                _priorityLabel.style.display = DisplayStyle.None;
+            }
         }
 
         private Color GetOriginalColor() => Data.nodeType switch

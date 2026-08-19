@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: NewBehaviorTree
   m_EditorClassIdentifier: 
   allNodes:
-  - guid: 9f82c498-a367-4c74-8380-df8690e0f5e1
+  - guid: b7a0b2d0-0e25-4e4f-9e43-b41697669874
     nodeName: Selector
     nodeType: 1
     graphPosition: {x: 200, y: 0}
@@ -24,44 +24,44 @@ MonoBehaviour:
     paramFloat: 0
     actionTypeName: 
     actionParamJson: 
-  - guid: d5a62132-2455-4b2e-8833-a487d4a9537f
+  - guid: b0285ca8-4c66-4801-bf6f-aa2b5a405673
     nodeName: Sequence
     nodeType: 0
-    graphPosition: {x: 0, y: 220}
-    parentGuid: 9f82c498-a367-4c74-8380-df8690e0f5e1
+    graphPosition: {x: -73.6, y: 268.80002}
+    parentGuid: b7a0b2d0-0e25-4e4f-9e43-b41697669874
     successPolicy: 0
     failurePolicy: 0
     paramInt: 1
     paramFloat: 0
     actionTypeName: 
     actionParamJson: 
-  - guid: 700351df-009f-41f4-a276-9973ae8beae2
+  - guid: 4a18e38a-8d75-4d74-8ee5-6f24fb44706c
     nodeName: Condition
     nodeType: 9
-    graphPosition: {x: -100, y: 440}
-    parentGuid: d5a62132-2455-4b2e-8833-a487d4a9537f
+    graphPosition: {x: -173.6, y: 488.8}
+    parentGuid: b0285ca8-4c66-4801-bf6f-aa2b5a405673
     successPolicy: 0
     failurePolicy: 0
     paramInt: 1
     paramFloat: 0
     actionTypeName: 
     actionParamJson: CheckPlayer
-  - guid: 0fd6df33-b51d-4a7b-8efa-ec22ed6261a6
+  - guid: 277830bc-4a65-4518-bd72-e166de9a2b19
     nodeName: Action
     nodeType: 8
-    graphPosition: {x: 100, y: 440}
-    parentGuid: d5a62132-2455-4b2e-8833-a487d4a9537f
+    graphPosition: {x: 26.4, y: 488.8}
+    parentGuid: b0285ca8-4c66-4801-bf6f-aa2b5a405673
     successPolicy: 0
     failurePolicy: 0
     paramInt: 1
     paramFloat: 0
     actionTypeName: 
     actionParamJson: EnemyChase
-  - guid: d7ebc7d3-467d-42b4-bb79-482a7658c40c
+  - guid: 8b74f254-983d-4af7-82aa-422c90e07efd
     nodeName: Action
     nodeType: 8
-    graphPosition: {x: 400, y: 220}
-    parentGuid: 9f82c498-a367-4c74-8380-df8690e0f5e1
+    graphPosition: {x: 399.2, y: 268.80002}
+    parentGuid: b7a0b2d0-0e25-4e4f-9e43-b41697669874
     successPolicy: 0
     failurePolicy: 0
     paramInt: 1

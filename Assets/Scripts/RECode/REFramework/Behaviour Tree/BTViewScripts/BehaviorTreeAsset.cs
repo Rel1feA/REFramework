@@ -50,8 +50,34 @@ namespace RECode.REFramework
             RebuildNodeMap();
         }
 
-        // 不做任何事：parentGuid 由 GraphView 在编辑时直接维护
-        public void OnBeforeSerialize() { }
+        // 序列化前：用先序遍历把 allNodes 重排成「父 → 子（按优先级顺序）」
+        // 这样反序列化时 children 才能按正确顺序重建
+        public void OnBeforeSerialize()
+        {
+            if (rootNode == null) return;
+
+            var ordered = new List<BTNodeData>(allNodes.Count);
+            var visited = new HashSet<BTNodeData>();
+            CollectPreOrder(rootNode, ordered, visited);
+
+            // 保留游离节点（不在根树中的）
+            foreach (var node in allNodes)
+            {
+                if (!visited.Contains(node))
+                    ordered.Add(node);
+            }
+
+            allNodes.Clear();
+            allNodes.AddRange(ordered);
+        }
+
+        private void CollectPreOrder(BTNodeData node, List<BTNodeData> result, HashSet<BTNodeData> visited)
+        {
+            if (node == null || !visited.Add(node)) return;
+            result.Add(node);
+            foreach (var child in node.children)
+                CollectPreOrder(child, result, visited);
+        }
 
         // 反序列化后：从 parentGuid 重建 children 树
         public void OnAfterDeserialize()

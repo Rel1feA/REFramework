@@ -96,6 +96,8 @@ namespace RECode.Editor.BTEditor
             {
                 ConnectChildEdges(view);
             }
+            // 建边后刷新优先级显示
+            RefreshAllPriorities();
 
             // 延迟一帧强制重绘，确保边的位置计算完成
             schedule.Execute(() =>
@@ -300,6 +302,94 @@ namespace RECode.Editor.BTEditor
         public BTNodeView GetNodeViewByGuid(string guid)
             => _nodeViewMap.TryGetValue(guid, out var view) ? view : null;
 
+        /// <summary>按层序遍历(BFS)计算全局优先级序号，并刷新所有节点显示</summary>
+        public void RefreshAllPriorities()
+        {
+            var order = new Dictionary<string, int>();
+            if (Asset?.rootNode != null)
+            {
+                int index = 1;
+                var queue = new Queue<BTNodeData>();
+                queue.Enqueue(Asset.rootNode);
+                while (queue.Count > 0)
+                {
+                    var node = queue.Dequeue();
+                    order[node.guid] = index++;
+                    foreach (var child in node.children)
+                        queue.Enqueue(child);
+                }
+            }
+
+            foreach (var kv in _nodeViewMap)
+                kv.Value.RefreshPriority(order);
+        }
+
+        /// <summary>交换兄弟优先级：direction=-1 上移(更靠左)，+1 下移(更靠右)</summary>
+        public void SwapSiblingPriority(BTNodeView nodeView, int direction)
+        {
+            var parent = nodeView.Data.parent;
+            if (parent == null) return;
+
+            int idx = parent.children.IndexOf(nodeView.Data);
+            int target = idx + direction;
+            if (idx < 0 || target < 0 || target >= parent.children.Count) return;
+
+            (parent.children[idx], parent.children[target]) =
+                (parent.children[target], parent.children[idx]);
+
+            EditorUtility.SetDirty(Asset);
+            RefreshAllPriorities();
+        }
+
+        private bool CanSwapPriority(BTNodeView nodeView, int direction)
+        {
+            var parent = nodeView.Data.parent;
+            if (parent == null) return false;
+            int idx = parent.children.IndexOf(nodeView.Data);
+            int target = idx + direction;
+            return idx >= 0 && target >= 0 && target < parent.children.Count;
+        }
+
+        /// <summary>按 X 坐标重排所有兄弟节点（拖动时摆左=优先级高）</summary>
+        private void ReSortSiblingsByX()
+        {
+            var parents = new HashSet<BTNodeData>();
+            foreach (var kv in _nodeViewMap)
+            {
+                var p = kv.Value.Data.parent;
+                if (p != null) parents.Add(p);
+            }
+
+            foreach (var p in parents)
+            {
+                if (p.children.Count > 1)
+                    p.children.Sort((a, b) => a.graphPosition.x.CompareTo(b.graphPosition.x));
+            }
+        }
+
+        /// <summary>拖拽结束时：同步所有节点位置，按 X 坐标重排兄弟优先级</summary>
+        private void HandleDragEnd()
+        {
+            if (Asset == null) return;
+
+            bool moved = false;
+            foreach (var kv in _nodeViewMap)
+            {
+                var pos = kv.Value.GetPosition().position;
+                if (kv.Value.Data.graphPosition != pos)
+                {
+                    kv.Value.Data.graphPosition = pos;
+                    moved = true;
+                }
+            }
+
+            if (!moved) return;
+
+            ReSortSiblingsByX();
+            RefreshAllPriorities();
+            EditorUtility.SetDirty(Asset);
+        }
+
         // ==================== 端口连接兼容性 ====================
 
         /// <summary>
@@ -349,16 +439,19 @@ namespace RECode.Editor.BTEditor
             }
 
             // ── 节点被移动 ──
+            // ── 节点被移动 ──
             if (change.movedElements != null)
             {
                 foreach (var element in change.movedElements)
                 {
                     if (element is BTNodeView nodeView)
-                    {
                         nodeView.Data.graphPosition = nodeView.GetPosition().position;
-                    }
                 }
+                ReSortSiblingsByX();  // 拖拽时按 X 坐标重排兄弟优先级
             }
+
+            // 统一刷新优先级显示（边增删、移动都会改变兄弟顺序）
+            RefreshAllPriorities();
 
             if (Asset != null)
                 EditorUtility.SetDirty(Asset);
@@ -576,6 +669,10 @@ namespace RECode.Editor.BTEditor
                 ? DropdownMenuAction.Status.Normal
                 : DropdownMenuAction.Status.Disabled);
             menu.AppendSeparator();
+            menu.AppendAction("优先级上移 (更靠左)", _ => SwapSiblingPriority(nodeView, -1),
+                CanSwapPriority(nodeView, -1) ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled);
+            menu.AppendAction("优先级下移 (更靠右)", _ => SwapSiblingPriority(nodeView, +1),
+                CanSwapPriority(nodeView, +1) ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled);
 
             menu.AppendAction("删除节点", _ =>
             {
