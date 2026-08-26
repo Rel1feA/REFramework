@@ -5,11 +5,14 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: Assets/Scenes/TestUI.unity
-    guid: 2cda990e2423bbf4892e6590ba056729
-  - enabled: 0
-    path: Assets/Scenes/Scene2.unity
-    guid: e571c2b53ee82f143aecd1a1920a1af5
+  - enabled: 1
+    path: Assets/Scenes/Persistent.unity
+    guid: b6263f66b65776747ae9a069e2fb7591
+  - enabled: 1
+    path: Assets/Scenes/BehaviorTreeTest.unity
+    guid: 366774454f93429408f1f8d53c8fe8e1
+  - enabled: 1
+    path: Assets/Scenes/Move2Test.unity
+    guid: 519e98e4b781de747a593a3b3a140f41
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: abea9d30258245a49bfe57773a059a6b, type: 2}
