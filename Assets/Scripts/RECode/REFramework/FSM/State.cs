@@ -6,15 +6,22 @@ namespace RECode.REFramework
 {
     public class State<T>
     {
-        public virtual void EnterState(T type) { }
+        public T value;
 
-        public virtual void ExitState(T type) { }
+        public State(T t)
+        {
+            value = t;
+        }
 
-        public virtual void FrameUpdate(T type) { }
+        public virtual void EnterState() { }
 
-        public virtual void PhysicsUpdate(T type) { }
+        public virtual void ExitState() { }
 
-        public virtual State<T> ChangeState(T type) {  return null; }
+        public virtual void FrameUpdate() { }
+
+        public virtual void PhysicsUpdate() { }
+
+        public virtual State<T> ChangeState() { return null; }
     }
 }
 
