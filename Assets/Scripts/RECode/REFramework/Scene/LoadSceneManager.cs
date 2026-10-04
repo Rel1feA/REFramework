@@ -79,7 +79,6 @@ namespace RECode.REFramework
             loading?.Invoke(1);
             asyncOperation.allowSceneActivation = setActiveAfterCompleted;
             yield return asyncOperation;
-            ResourcesManager.Instance.UnloadUnusedAssets();
             completed?.Invoke(asyncOperation);
         }
         #endregion
@@ -105,7 +104,6 @@ namespace RECode.REFramework
             loading?.Invoke(1);
             asyncOperation.allowSceneActivation = setActiveAfterCompleted;
             yield return asyncOperation;
-            ResourcesManager.Instance.UnloadUnusedAssets();
             completed?.Invoke(asyncOperation);
         }
         #endregion
